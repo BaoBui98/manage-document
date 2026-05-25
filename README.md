@@ -325,3 +325,12 @@ manage-document/
 ## 📝 License
 
 UNLICENSED
+
+
+Trên GitHub repo:
+Vào https://github.com/BaoBui98/manage-document → Settings → Webhooks → Add webhook
+Điền:
+Payload URL: http://47.131.75.110:8080/github-webhook/
+Content type: application/json
+Which events?: chọn "Just the push event"
+Click Add webhook
