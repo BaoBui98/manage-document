@@ -65,6 +65,38 @@ export class EnvironmentConfig {
     @IsString()
     @IsNotEmpty()
     public readonly jwtRefreshExpiresIn!: string;
+
+    // --- MinIO Configuration ---
+    @Expose({ name: 'MINIO_ENDPOINT' })
+    @IsString()
+    @IsNotEmpty()
+    public readonly minioEndpoint!: string;
+
+    @Expose({ name: 'MINIO_PORT' })
+    @IsNumber()
+    @Transform(({ value }) => parseInt(value, 10))
+    public readonly minioPort!: number;
+
+    @Expose({ name: 'MINIO_ACCESS_KEY' })
+    @IsString()
+    @IsNotEmpty()
+    public readonly minioAccessKey!: string;
+
+    @Expose({ name: 'MINIO_SECRET_KEY' })
+    @IsString()
+    @IsNotEmpty()
+    public readonly minioSecretKey!: string;
+
+    @Expose({ name: 'MINIO_BUCKET' })
+    @IsString()
+    @IsNotEmpty()
+    public readonly minioBucket!: string;
+
+    // --- RabbitMQ Configuration ---
+    @Expose({ name: 'RABBITMQ_URL' })
+    @IsString()
+    @IsNotEmpty()
+    public readonly rabbitmqUrl!: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {

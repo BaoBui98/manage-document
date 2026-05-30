@@ -10,6 +10,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guard/auth.guard';
 import { RolesGuard } from './guard/roles.guard';
 import { JwtModule } from '@nestjs/jwt';
+import { DocumentModule } from './document/document.module';
+import { UploadModule } from './upload/upload.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { JwtModule } from '@nestjs/jwt';
     DatabaseModule,
     AuthModule,
     UserModule,
+    DocumentModule,
+    UploadModule,
+    SubscriptionModule,
   ],
   controllers: [AppController],
   providers: [

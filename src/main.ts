@@ -4,9 +4,23 @@ import { ValidationPipe } from '@nestjs/common';
 import { envConfig } from './config/env.conf';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ResponseInterceptor } from './interceptor/response.interceptor';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Cấu hình Microservice RabbitMQ cho app hiện tại
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [envConfig.rabbitmqUrl],
+      queue: 'document_queue',
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // Loại bỏ các thuộc tính không mong muốn trong request
@@ -28,6 +42,7 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, documentFactory);
 
+  await app.startAllMicroservices(); // Khởi động microservices lắng nghe RabbitMQ
   await app.listen(envConfig.port ?? 3000);
 }
 bootstrap();
