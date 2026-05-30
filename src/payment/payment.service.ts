@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Payment, PaymentStatus, BillingCycle } from './entities/payment.entity';
 import { Repository } from 'typeorm';
 import { SubscriptionService } from '../subscription/subscription.service';
+import { PlanUsagesService } from '../plan-usages/plan-usages.service';
 import Stripe from 'stripe';
 import { envConfig } from '../config/env.conf';
 
@@ -18,7 +19,8 @@ export class PaymentService {
   constructor(
     @InjectRepository(Payment)
     private readonly paymentRepo: Repository<Payment>,
-    private readonly subscriptionService: SubscriptionService
+    private readonly subscriptionService: SubscriptionService,
+    private readonly planUsagesService: PlanUsagesService
   ) {
     // @ts-ignore
     this.stripe = new Stripe(envConfig.stripeSecretKey || 'sk_test_fake', {
@@ -85,18 +87,27 @@ export class PaymentService {
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as StripeCheckoutSession;
-      
-      const payment = await this.paymentRepo.findOne({ where: { stripeSessionId: session.id } });
-      if (payment) {
-        payment.status = PaymentStatus.SUCCESS;
-        payment.stripePaymentIntentId = session.payment_intent as string;
-        await this.paymentRepo.save(payment);
-        
-        console.log(`[Thanh toán thành công] Đơn hàng ${payment.id}`);
-        // TODO: Có thể update quyền User thành PREMIUM ở đây
-      }
+      await this.handlePaymentSuccess(session);
     }
 
     return { received: true };
+  }
+
+  private async handlePaymentSuccess(session: StripeCheckoutSession) {
+    const payment = await this.paymentRepo.findOne({ where: { stripeSessionId: session.id } });
+    if (!payment) return;
+
+    payment.status = PaymentStatus.SUCCESS;
+    payment.stripePaymentIntentId = session.payment_intent as string;
+    await this.paymentRepo.save(payment);
+    
+    console.log(`[Thanh toán thành công] Đơn hàng ${payment.id}`);
+    
+    // Cập nhật lại PlanUsage cho User
+    const subscription = await this.subscriptionService.findOne(payment.subscriptionId);
+    if (subscription) {
+      await this.planUsagesService.upsertPlanUsage(payment.userId, payment.subscriptionId, subscription.maxDocument);
+      console.log(`[Cập nhật gói cước] Đã cộng dồn ${subscription.maxDocument} documents cho User ${payment.userId}`);
+    }
   }
 }

@@ -6,13 +6,14 @@ import { envConfig } from '../config/env.conf';
 import { UploadModule } from '../upload/upload.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Document } from './entities/document.entity';
+import { PlanUsage } from '../plan-usages/entities/plan-usage.entity';
 
 import { DocumentUploadListener } from './listeners/document-upload.listener';
 import { RabbitMQListener } from '../rabbitMQ/listener';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Document]),
+    TypeOrmModule.forFeature([Document, PlanUsage]),
     UploadModule,
     ClientsModule.register([
       {

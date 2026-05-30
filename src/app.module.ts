@@ -14,6 +14,8 @@ import { DocumentModule } from './document/document.module';
 import { UploadModule } from './upload/upload.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { PaymentModule } from './payment/payment.module';
+import { PlanUsagesModule } from './plan-usages/plan-usages.module';
+import { MinioModule } from './minio/minio.module';
 
 @Module({
   imports: [
@@ -23,12 +25,14 @@ import { PaymentModule } from './payment/payment.module';
     }),
     JwtModule.register({ global: true }),
     DatabaseModule,
+    MinioModule,
     AuthModule,
     UserModule,
     DocumentModule,
     UploadModule,
     SubscriptionModule,
     PaymentModule,
+    PlanUsagesModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Document, DocumentStatus } from './entities/document.entity';
 import { ClientProxy } from '@nestjs/microservices';
 import { RABBITMQ_PATTERN } from '../rabbitMQ/patternName';
+import { UploadService } from '../upload/upload.service';
 
 @Injectable()
 export class DocumentService {
@@ -11,6 +12,7 @@ export class DocumentService {
     @InjectRepository(Document)
     private documentRepo: Repository<Document>,
     @Inject('RABBITMQ_SERVICE') private readonly rabbitClient: ClientProxy,
+    private readonly uploadService: UploadService,
   ) { }
 
   async processUploadAndEmitTask(files: Express.Multer.File[], userId: string) {
@@ -62,7 +64,17 @@ export class DocumentService {
   }
 
   async remove(id: string) {
+    const doc = await this.findOne(id);
+    
+    if (doc.status === DocumentStatus.PENDING) {
+      throw new BadRequestException('Không thể xóa tài liệu đang trong quá trình xử lý');
+    }
+
+    if (doc.file_url) {
+      await this.uploadService.deleteFile(doc.file_url);
+    }
+
     await this.documentRepo.delete(id);
-    return { success: true };
+    return { success: true, message: 'Đã xóa tài liệu thành công' };
   }
 }

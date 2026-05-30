@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFiles, Inject, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFiles, Inject, Req, UseGuards } from '@nestjs/common';
 import { DocumentService } from './document.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
@@ -12,6 +12,8 @@ import type { RequestWithUser } from '../interface/request.interface';
 import { ApiBearerAuth, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { DocumentStatus } from './entities/document.entity';
 import { RABBITMQ_PATTERN } from '../rabbitMQ/patternName';
+import { Usages } from '../decorator/usages.decorator';
+import { PlanUsagesGuard } from '../guard/planUsages.guard';
 
 @ApiTags('Document')
 @ApiBearerAuth()
@@ -26,6 +28,8 @@ export class DocumentController {
     }
   }
 
+  @Usages()
+  @UseGuards(PlanUsagesGuard)
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
