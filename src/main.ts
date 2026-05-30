@@ -7,7 +7,7 @@ import { ResponseInterceptor } from './interceptor/response.interceptor';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   // Cấu hình Microservice RabbitMQ cho app hiện tại
   app.connectMicroservice<MicroserviceOptions>({

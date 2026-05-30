@@ -13,6 +13,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { DocumentModule } from './document/document.module';
 import { UploadModule } from './upload/upload.module';
 import { SubscriptionModule } from './subscription/subscription.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
     DocumentModule,
     UploadModule,
     SubscriptionModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [

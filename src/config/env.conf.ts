@@ -97,6 +97,23 @@ export class EnvironmentConfig {
     @IsString()
     @IsNotEmpty()
     public readonly rabbitmqUrl!: string;
+
+    // --- Stripe Configuration ---
+    @Expose({ name: 'STRIPE_SECRET_KEY' })
+    @IsString()
+    public readonly stripeSecretKey: string;
+
+    @Expose({ name: 'STRIPE_WEBHOOK_SECRET' })
+    @IsString()
+    public readonly stripeWebhookSecret: string;
+
+    @Expose({ name: 'STRIPE_SUCCESS_URL' })
+    @IsString()
+    public readonly stripeSuccessUrl: string;
+
+    @Expose({ name: 'STRIPE_CANCEL_URL' })
+    @IsString()
+    public readonly stripeCancelUrl: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {
